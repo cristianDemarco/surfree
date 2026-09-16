@@ -1,33 +1,21 @@
 async function loadPopupData() {
-  let text = document.createElement("h2");
   let stats = await chrome.storage.local.get([
     "lastMatchedCount",
     "totalBlocked",
     "blockedToday",
   ]);
-  text.textContent = `Match: ${stats.lastMatchedCount}\n
-  Totale oggi: ${stats.totalBlocked}\n
-  Bloccati oggi: ${stats.blockedToday}`;
-  let header = document.getElementById("intro");
+
+  const total = stats.totalBlocked || 0;
+  const today = stats.blockedToday || 0;
+
+  let text = document.createElement("div");
+
+  text.innerHTML = `
+  <p><strong>Bloccati in totale:</strong> ${total}</p>
+  <p><strong>Bloccati oggi:</strong> ${today}</p>`;
+
+  const header = document.getElementById("intro");
   header.insertAdjacentElement("afterend", text);
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-  const rules = await chrome.declarativeNetRequest.getMatchedRules();
-  const count = rules.rulesMatchedInfo?.length || 0;
-  const stored = await chrome.storage.local.get([
-    "lastMatchedCount",
-    "totalBlocked",
-    "blockedToday",
-  ]);
-  const newMatches = Math.max(0, count - (stored.lastMatchedCount || 0));
-  if (newMatches > 0) {
-    chrome.storage.local.set({
-      lastMatchedCount: count,
-      totalBlocked: (stored.totalBlocked || 0) + newMatches,
-      blockedToday: (stored.blockedToday || 0) + newMatches,
-    });
-  }
-});
-
-loadPopupData();
+document.addEventListener("DOMContentLoaded", loadPopupData);

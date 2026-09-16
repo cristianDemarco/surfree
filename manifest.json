@@ -7,7 +7,8 @@
     "declarativeNetRequestFeedback",
     "storage",
     "tabs",
-    "activeTab"
+    "activeTab",
+    "alarms"
   ],
   "host_permissions": ["<all_urls>"],
   "declarative_net_request": {
@@ -21,6 +22,7 @@
       { "id": "easylist_popups", "enabled": true, "path": "rules/popups.json" }
     ]
   },
+  "background": { "service_worker": "background.js" },
   "action": { "default_popup": "popup/popup.html" },
   "content_scripts": [
     {

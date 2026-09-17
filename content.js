@@ -51,9 +51,9 @@ function stopBlocking() {
   }
 }
 
-chrome.storage.onChanged.addListener((changes, areaName), () => {
+chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName == "local" && changes.isEnabled) {
-    if (changes.isEnabled.value) {
+    if (changes.isEnabled.newValue) {
       startBlocking();
     } else {
       stopBlocking();
@@ -61,8 +61,9 @@ chrome.storage.onChanged.addListener((changes, areaName), () => {
   }
 });
 
-chrome.storage.local.get("isEnabled", (data) => {
-  if (data.isEnabled !== false) {
-    startBlocking();
+document.addEventListener("DOMContentLoaded", async () => {
+  const data = await chrome.storage.local.get("isEnabled");
+  if (data.isEnabled) {
+    hideAdElements();
   }
 });

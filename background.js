@@ -54,10 +54,6 @@ async function toggleNetRules(isEnabled) {
   }
 }
 
-chrome.runtime.onInstalled.addListener(() => {
-  createDailyAlarm();
-});
-
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "dailyCountReset") {
     const today = new Date().toISOString().split("T")[0];
@@ -82,6 +78,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 });
 
 chrome.runtime.onInstalled.addListener(async () => {
+  createDailyAlarm();
   const data = await chrome.storage.local.get("isEnabled");
   const isEnabled = data.isEnabled !== false;
   await toggleNetRules(isEnabled);

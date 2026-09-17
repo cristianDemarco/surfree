@@ -12,20 +12,6 @@ function createDailyAlarm() {
   });
 }
 
-chrome.runtime.onInstalled.addListener(() => {
-  createDailyAlarm();
-});
-
-chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === "dailyCountReset") {
-    const today = new Date().toISOString().split("T")[0];
-    chrome.storage.local.set({
-      blockedToday: 0,
-      lastUpdate: today,
-    });
-  }
-});
-
 async function processNewMatches(newCount) {
   if (newCount <= 0) return;
 
@@ -46,8 +32,57 @@ async function processNewMatches(newCount) {
   });
 }
 
+async function toggleNetRules(isEnabled) {
+  if (isEnabled) {
+    await chrome.declarativeNetRequest.updateEnabledRulesets({
+      enableRulesetIds: [
+        "easylist_ads",
+        "easylist_trackers",
+        "easylist_popups",
+      ],
+    });
+    console.log("Regole declarativeNetRequest attivate.");
+  } else {
+    await chrome.declarativeNetRequest.updateEnabledRulesets({
+      disableRulesetIds: [
+        "easylist_ads",
+        "easylist_trackers",
+        "easylist_popups",
+      ],
+    });
+    console.log("Regole declarativeNetRequest disattivate.");
+  }
+}
+
+chrome.runtime.onInstalled.addListener(() => {
+  createDailyAlarm();
+});
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === "dailyCountReset") {
+    const today = new Date().toISOString().split("T")[0];
+    chrome.storage.local.set({
+      blockedToday: 0,
+      lastUpdate: today,
+    });
+  }
+});
+
 chrome.runtime.onMessage.addListener((message) => {
   if (message.type === "ADS_HIDDEN") {
     processNewMatches(message.count);
   }
+});
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName == "local" && changes.isEnabled) {
+    const isEnabled = changes.isEnabled.newValue !== false;
+    toggleNetRules(isEnabled);
+  }
+});
+
+chrome.runtime.onInstalled.addListener(async () => {
+  const data = await chrome.storage.local.get("isEnabled");
+  const isEnabled = data.isEnabled !== false;
+  await toggleNetRules(isEnabled);
 });

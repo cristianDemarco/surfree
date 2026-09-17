@@ -8,6 +8,7 @@ const AD_SELECTORS = [
   '[class*="advertisement"]',
 ];
 
+let observer = null;
 let hiddenTotalCount = 0;
 
 function hideAdElements() {
@@ -32,9 +33,36 @@ function hideAdElements() {
   }
 }
 
-hideAdElements();
-const observer = new MutationObserver(hideAdElements);
-observer.observe(document.documentElement, {
-  childList: true,
-  subtree: true,
+function startBlocking() {
+  hideAdElements();
+  if (!observer) {
+    observer = new MutationObserver(hideAdElements);
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+    });
+  }
+}
+
+function stopBlocking() {
+  if (observer) {
+    observer.disconnect();
+    observer = null;
+  }
+}
+
+chrome.storage.onChanged.addListener((changes, areaName), () => {
+  if (areaName == "local" && changes.isEnabled) {
+    if (changes.isEnabled.value) {
+      startBlocking();
+    } else {
+      stopBlocking();
+    }
+  }
+});
+
+chrome.storage.local.get("isEnabled", (data) => {
+  if (data.isEnabled !== false) {
+    startBlocking();
+  }
 });

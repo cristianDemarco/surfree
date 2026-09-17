@@ -16,6 +16,13 @@ async function loadPopupData() {
 
   const header = document.getElementById("intro");
   header.insertAdjacentElement("afterend", text);
+
+  const toggleButton = document.getElementById("toggle");
+  toggleButton.addEventListener("change", async (event) => {
+    const isChecked = event.target.checked;
+    console.log(isChecked);
+    await chrome.storage.local.set({ isEnabled: isChecked });
+  });
 }
 
 document.addEventListener("DOMContentLoaded", loadPopupData);

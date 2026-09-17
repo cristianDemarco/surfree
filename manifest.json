@@ -8,7 +8,8 @@
     "storage",
     "tabs",
     "activeTab",
-    "alarms"
+    "alarms",
+    "management"
   ],
   "host_permissions": ["<all_urls>"],
   "declarative_net_request": {

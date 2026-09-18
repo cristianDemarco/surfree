@@ -14,7 +14,7 @@ async function loadPopupData() {
   <p><strong>Bloccati in totale:</strong> ${total}</p>
   <p><strong>Bloccati oggi:</strong> ${today}</p>`;
 
-  const header = document.getElementById("intro");
+  const header = document.getElementById("toggleSection");
   header.insertAdjacentElement("afterend", text);
 
   const toggleButton = document.getElementById("toggle");

@@ -54,3 +54,8 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+
+#toggleSection {
+  width: 6em;
+  height: 3em;
+}

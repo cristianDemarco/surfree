@@ -23,10 +23,12 @@ function hideAdElements() {
 
   if (newlyHidden > 0) {
     hiddenTotalCount += newlyHidden;
+    const currentDomain = window.location.hostname;
 
     chrome.runtime
       .sendMessage({
         type: "ADS_HIDDEN",
+        domain: currentDomain,
         count: newlyHidden,
       })
       .catch(() => {});

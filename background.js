@@ -12,7 +12,7 @@ function createDailyAlarm() {
   });
 }
 
-async function processNewMatches(newCount) {
+async function processNewMatches(newCount, domain) {
   if (newCount <= 0) return;
 
   const stored = await chrome.storage.local.get([
@@ -20,15 +20,21 @@ async function processNewMatches(newCount) {
     "totalBlocked",
     "blockedToday",
     "lastUpdate",
+    "statsByDomain",
   ]);
 
   const today = new Date().toISOString().split("T")[0];
   const isNewDay = !stored.lastUpdate || today > stored.lastUpdate;
 
+  const statsByDomain = stored.statsByDomain || {};
+  const countByDomain = statsByDomain[domain] || 0;
+  statsByDomain[domain] = countByDomain + newCount;
+
   chrome.storage.local.set({
     totalBlocked: (stored.totalBlocked || 0) + newCount,
     blockedToday: isNewDay ? newCount : (stored.blockedToday || 0) + newCount,
     lastUpdate: today,
+    statsByDomain: statsByDomain,
   });
 }
 
@@ -66,7 +72,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 
 chrome.runtime.onMessage.addListener((message) => {
   if (message.type === "ADS_HIDDEN") {
-    processNewMatches(message.count);
+    processNewMatches(message.count, message.domain);
   }
 });
 

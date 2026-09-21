@@ -22,7 +22,7 @@ async function loadPopupData() {
   <p><strong>Bloccati oggi:</strong> ${today}</p>
   <p><strong>Bloccati in questo dominio:</strong> ${domainBlockedCount}</p>`;
 
-  const header = document.getElementById("toggleSection");
+  const header = document.getElementById("main");
   header.insertAdjacentElement("afterend", text);
 
   await handleToggleButton();

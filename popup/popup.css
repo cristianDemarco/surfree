@@ -55,7 +55,31 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
-#toggleSection {
-  width: 6em;
-  height: 3em;
+body {
+  width: 12em;
+  height: 4em;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  gap: 2em;
+}
+
+html {
+  border: solid 0.3em #2196f3;
+  background:
+    linear-gradient(
+      rgba(255, 255, 255, 0.4),
+      rgba(255, 255, 255, 0.4),
+      rgba(255, 255, 255, 0.4)
+    ),
+    url("../images/surfree128.png");
+  background-size: 8em;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+p {
+  font-size: 1.1em;
 }

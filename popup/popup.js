@@ -1,3 +1,5 @@
+import { cleanDomain } from "../util.js";
+
 async function loadPopupData() {
   let stats = await chrome.storage.local.get([
     "lastMatchedCount",
@@ -10,7 +12,9 @@ async function loadPopupData() {
 
   if (!tab || !tab.url) return;
 
-  const domainBlockedCount = getDomainBlockedCount(stats, tab);
+  const domain = new URL(tab.url).hostname;
+
+  const domainBlockedCount = getDomainBlockedCount(stats, domain);
 
   const total = stats.totalBlocked || 0;
   const today = stats.blockedToday || 0;
@@ -25,27 +29,42 @@ async function loadPopupData() {
   const header = document.getElementById("main");
   header.insertAdjacentElement("afterend", text);
 
-  await handleToggleButton();
+  await handleExtensionButton();
+  await handleWhitelistButton(domain);
 }
 
-function getDomainBlockedCount(stats, tab) {
-  const url = new URL(tab.url);
-  const currentDomain = url.hostname;
-
+function getDomainBlockedCount(stats, domain) {
   const statsByDomain = stats.statsByDomain || {};
-  const domainBlockedCount = statsByDomain[currentDomain] || 0;
+  const domainBlockedCount = statsByDomain[domain] || 0;
 
   return domainBlockedCount;
 }
 
-async function handleToggleButton() {
-  const toggleButton = document.getElementById("toggle");
+async function handleExtensionButton() {
+  const toggleButton = document.getElementById("toggleExtension");
   const data = await chrome.storage.local.get("isEnabled");
   toggleButton.checked = data.isEnabled;
 
   toggleButton.addEventListener("change", async (event) => {
     const isChecked = event.target.checked;
     await chrome.storage.local.set({ isEnabled: isChecked });
+  });
+}
+
+async function handleWhitelistButton(inputDomain) {
+  const domain = cleanDomain(inputDomain);
+  const toggleButton = document.getElementById("toggleWhitelist");
+  const data = await chrome.storage.local.get("whitelist");
+  const domains = data.whitelist || [];
+
+  toggleButton.checked = domains.includes(domain);
+
+  toggleButton.addEventListener("change", async (event) => {
+    chrome.runtime.sendMessage({
+      type: "WHITELIST_TOGGLE",
+      toggleValue: event.target.checked,
+      domain: domain,
+    });
   });
 }
 

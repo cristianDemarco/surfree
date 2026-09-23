@@ -11,11 +11,21 @@ const AD_SELECTORS = [
 let observer = null;
 let hiddenTotalCount = 0;
 
-function hideAdElements() {
+async function hideAdElements() {
+  const currentDomain = window.location.hostname;
+
+  const data = await chrome.storage.local.get("whitelist");
+  const list = data.whitelist || [];
+
+  if (list.includes(currentDomain)) return;
+
   const elements = document.querySelectorAll(AD_SELECTORS.join(","));
   let newlyHidden = 0;
 
   elements.forEach((el) => {
+    if (el.getAttribute("data-surfree-hidden") === "true") return;
+
+    el.style.setProperty("data-surfree-hidden", "true");
     el.style.setProperty("display", "none", "important");
     el.style.setProperty("height", "0", "important");
     newlyHidden++;
@@ -23,7 +33,6 @@ function hideAdElements() {
 
   if (newlyHidden > 0) {
     hiddenTotalCount += newlyHidden;
-    const currentDomain = window.location.hostname;
 
     chrome.runtime
       .sendMessage({

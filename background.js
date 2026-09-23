@@ -1,3 +1,5 @@
+import { getRuleIdForDomain, cleanDomain } from "./util.js";
+
 function getMinutesToMidnight() {
   const now = new Date();
   const midnight = new Date().setHours(24, 0, 0, 0);
@@ -74,6 +76,14 @@ chrome.runtime.onMessage.addListener((message) => {
   if (message.type === "ADS_HIDDEN") {
     processNewMatches(message.count, message.domain);
   }
+
+  if (message.type === "WHITELIST_TOGGLE") {
+    if (message.toggleValue) {
+      whitelistDomain(message.domain);
+    } else {
+      unwhitelistDomain(message.domain);
+    }
+  }
 });
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
@@ -89,3 +99,55 @@ chrome.runtime.onInstalled.addListener(async () => {
   const isEnabled = data.isEnabled !== false;
   await toggleNetRules(isEnabled);
 });
+
+async function whitelistDomain(domain) {
+  const targetDomain = cleanDomain(domain);
+  const ruleId = getRuleIdForDomain(domain);
+
+  chrome.declarativeNetRequest.updateDynamicRules({
+    removeRuleIds: [ruleId],
+    addRules: [
+      {
+        id: ruleId,
+        priority: 999,
+        action: {
+          type: "allow",
+        },
+        condition: {
+          initiatorDomains: [domain],
+        },
+      },
+    ],
+  });
+
+  const data = await chrome.storage.local.get("whitelist");
+  const list = data.whitelist || [];
+  if (!list.includes(targetDomain)) {
+    list.push(targetDomain);
+    await chrome.storage.local.set({ whitelist: list });
+  }
+}
+
+async function unwhitelistDomain(domain) {
+  const targetDomain = cleanDomain(domain);
+  const ruleId = getRuleIdForDomain(domain);
+
+  chrome.declarativeNetRequest.updateDynamicRules({
+    removeRuleIds: [ruleId],
+  });
+
+  const data = await chrome.storage.local.get("whitelist");
+  const list = data.whitelist || [];
+  const updatedList = list.filter((d) => d !== targetDomain);
+  await chrome.storage.local.set({ whitelist: updatedList });
+}
+
+/* chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((info) => {
+  if (info.rule.ruleId === 1) return;
+  console.log("Regola applicata:", {
+    urlRichiesta: info.request.url,
+    ruleId: info.rule.ruleId,
+    rulesetId: info.rule.rulesetId,
+    initiator: info.request.initiator,
+  });
+}); */

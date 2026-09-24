@@ -12,7 +12,8 @@ async function loadPopupData() {
 
   if (!tab || !tab.url) return;
 
-  const domain = new URL(tab.url).hostname;
+  const url = new URL(tab.url).hostname;
+  const domain = cleanDomain(url);
 
   const domainBlockedCount = getDomainBlockedCount(stats, domain);
 
@@ -29,7 +30,7 @@ async function loadPopupData() {
   const header = document.getElementById("main");
   header.insertAdjacentElement("afterend", text);
 
-  await handleExtensionButton();
+  await handleExtensionButton(domain);
   await handleWhitelistButton(domain);
 }
 
@@ -40,26 +41,50 @@ function getDomainBlockedCount(stats, domain) {
   return domainBlockedCount;
 }
 
-async function handleExtensionButton() {
-  const toggleButton = document.getElementById("toggleExtension");
-  const data = await chrome.storage.local.get("isEnabled");
-  toggleButton.checked = data.isEnabled;
+async function handleExtensionButton(domain) {
+  const toggleExtension = document.getElementById("toggleExtension");
+  const extensionSwitch = document.getElementById("extensionSwitch");
+  const toggleWhitelist = document.getElementById("toggleWhitelist");
 
-  toggleButton.addEventListener("change", async (event) => {
+  const data = await chrome.storage.local.get("isEnabled");
+  toggleExtension.checked = data.isEnabled;
+
+  extensionSwitch.addEventListener("click", async (event) => {
+    if (toggleWhitelist.checked) {
+      toggleWhitelist.checked = false;
+      chrome.runtime.sendMessage({
+        type: "WHITELIST_TOGGLE",
+        toggleValue: false,
+        domain: domain,
+      });
+    }
+
     const isChecked = event.target.checked;
     await chrome.storage.local.set({ isEnabled: isChecked });
   });
+
+  extensionSwitch.addEventListener("animationend", () => {
+    extensionSwitch.classList.remove("animation");
+  });
 }
 
-async function handleWhitelistButton(inputDomain) {
-  const domain = cleanDomain(inputDomain);
-  const toggleButton = document.getElementById("toggleWhitelist");
+async function handleWhitelistButton(domain) {
   const data = await chrome.storage.local.get("whitelist");
+  const toggleButton = document.getElementById("toggleWhitelist");
+
   const domains = data.whitelist || [];
 
   toggleButton.checked = domains.includes(domain);
 
-  toggleButton.addEventListener("change", async (event) => {
+  toggleButton.addEventListener("click", async (event) => {
+    const data = await chrome.storage.local.get("isEnabled");
+
+    if (!data.isEnabled) {
+      event.target.checked = !event.target.checked;
+      document.getElementById("extensionSwitch").classList.add("animation");
+      return;
+    }
+
     chrome.runtime.sendMessage({
       type: "WHITELIST_TOGGLE",
       toggleValue: event.target.checked,

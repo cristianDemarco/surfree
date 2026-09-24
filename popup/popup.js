@@ -1,4 +1,4 @@
-import { cleanDomain } from "../util.js";
+import { cleanDomain } from "../background/domain.js";
 
 async function loadPopupData() {
   let stats = await chrome.storage.local.get([

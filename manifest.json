@@ -29,7 +29,10 @@
       { "id": "easylist_popups", "enabled": true, "path": "rules/popups.json" }
     ]
   },
-  "background": { "service_worker": "background.js", "type": "module" },
+  "background": {
+    "service_worker": "background/background.js",
+    "type": "module"
+  },
   "action": {
     "default_popup": "popup/popup.html",
     "default_icon": {

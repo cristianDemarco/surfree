@@ -1,18 +1,7 @@
-import { getRuleIdForDomain, cleanDomain } from "./util.js";
+import { whitelistDomain, unwhitelistDomain } from "./domain.js";
+import { createDailyAlarm, setupDailyAlarm } from "./alarms.js";
 
-function getMinutesToMidnight() {
-  const now = new Date();
-  const midnight = new Date().setHours(24, 0, 0, 0);
-
-  return (midnight - now) / 1000 / 60;
-}
-
-function createDailyAlarm() {
-  chrome.alarms.create("dailyCountReset", {
-    delayInMinutes: getMinutesToMidnight(),
-    periodInMinutes: 1440,
-  });
-}
+setupDailyAlarm();
 
 async function processNewMatches(newCount, domain) {
   if (newCount <= 0) return;
@@ -49,7 +38,7 @@ async function toggleNetRules(isEnabled) {
         "easylist_popups",
       ],
     });
-    console.log("Regole declarativeNetRequest attivate.");
+    console.log("Net rules activated.");
   } else {
     await chrome.declarativeNetRequest.updateEnabledRulesets({
       disableRulesetIds: [
@@ -58,19 +47,9 @@ async function toggleNetRules(isEnabled) {
         "easylist_popups",
       ],
     });
-    console.log("Regole declarativeNetRequest disattivate.");
+    console.log("Net rules deactivated.");
   }
 }
-
-chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === "dailyCountReset") {
-    const today = new Date().toISOString().split("T")[0];
-    chrome.storage.local.set({
-      blockedToday: 0,
-      lastUpdate: today,
-    });
-  }
-});
 
 chrome.runtime.onMessage.addListener((message) => {
   if (message.type === "ADS_HIDDEN") {
@@ -100,51 +79,8 @@ chrome.runtime.onInstalled.addListener(async () => {
   await toggleNetRules(isEnabled);
 });
 
-async function whitelistDomain(domain) {
-  const targetDomain = cleanDomain(domain);
-  const ruleId = getRuleIdForDomain(domain);
-
-  chrome.declarativeNetRequest.updateDynamicRules({
-    removeRuleIds: [ruleId],
-    addRules: [
-      {
-        id: ruleId,
-        priority: 999,
-        action: {
-          type: "allow",
-        },
-        condition: {
-          initiatorDomains: [domain],
-        },
-      },
-    ],
-  });
-
-  const data = await chrome.storage.local.get("whitelist");
-  const list = data.whitelist || [];
-  if (!list.includes(targetDomain)) {
-    list.push(targetDomain);
-    await chrome.storage.local.set({ whitelist: list });
-  }
-}
-
-async function unwhitelistDomain(domain) {
-  const targetDomain = cleanDomain(domain);
-  const ruleId = getRuleIdForDomain(domain);
-
-  chrome.declarativeNetRequest.updateDynamicRules({
-    removeRuleIds: [ruleId],
-  });
-
-  const data = await chrome.storage.local.get("whitelist");
-  const list = data.whitelist || [];
-  const updatedList = list.filter((d) => d !== targetDomain);
-  await chrome.storage.local.set({ whitelist: updatedList });
-}
-
 /* chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((info) => {
-  if (info.rule.ruleId === 1) return;
-  console.log("Regola applicata:", {
+  console.log("Applied rule:", {
     urlRichiesta: info.request.url,
     ruleId: info.rule.ruleId,
     rulesetId: info.rule.rulesetId,

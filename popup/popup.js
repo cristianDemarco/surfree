@@ -23,9 +23,13 @@ async function loadPopupData() {
   let text = document.createElement("div");
 
   text.innerHTML = `
-  <p><strong>Bloccati in totale:</strong> ${total}</p>
-  <p><strong>Bloccati oggi:</strong> ${today}</p>
-  <p><strong>Bloccati in questo dominio:</strong> ${domainBlockedCount}</p>`;
+  <br>
+  <p class="statsLabel"><strong>BLOCCATI IN TOTALE</strong></p>
+  <strong><p class="statsData">${total}</p></strong>
+  <p class="statsLabel"><strong>BLOCCATI  OGGI</strong></p>
+  <strong><p class="statsData">${today}</p></strong>
+  <p class="statsLabel"><strong>BLOCCATI IN QUESTO DOMINO</strong></p>
+  <strong><p class="statsData">${domainBlockedCount}</p></strong>`;
 
   const header = document.getElementById("main");
   header.insertAdjacentElement("afterend", text);

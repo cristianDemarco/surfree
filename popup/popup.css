@@ -56,26 +56,27 @@ input:checked + .slider:before {
 }
 
 body {
-  width: 12em;
+  width: 17em;
   height: 4em;
 }
 
 .container {
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 2em;
+  gap: 1.2em;
 }
 
 html {
   border: solid 0.3em #2196f3;
   background:
     linear-gradient(
-      rgba(255, 255, 255, 0.4),
-      rgba(255, 255, 255, 0.4),
-      rgba(255, 255, 255, 0.4)
+      rgba(255, 255, 255, 0.6),
+      rgba(255, 255, 255, 0.6),
+      rgba(255, 255, 255, 0.6)
     ),
     url("../images/surfree128.png");
-  background-size: 8em;
+  background-size: 10em;
   background-repeat: no-repeat;
   background-position: center;
 }
@@ -111,7 +112,27 @@ p {
   perspective: 1000px;
 }
 
-#toggleExtension,
-#toggleWhitelist {
-  display: inline-block;
+.buttonLabel {
+  color: #fff;
+  font-size: 1.8em;
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+  -webkit-text-stroke: 1px #2196f3;
+}
+
+.statsLabel {
+  color: #000;
+  font-size: 1.4em;
+  text-align: center;
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+}
+
+.statsData {
+  color: #fff;
+  font-size: 2.3em;
+  -webkit-text-stroke: 1px #2196f3;
+  text-align: center;
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
 }

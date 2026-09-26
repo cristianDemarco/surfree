@@ -3,25 +3,24 @@
     <link href="popup.css" rel="stylesheet" />
   </head>
   <body>
-    <div id="main" class="container">
-      <div>
-        <p><strong>Surfree</strong></p>
-        <p><strong>OFF/ON</strong></p>
+    <div id="main">
+      <div class="container">
+        <p class="buttonLabel"><strong>SURFREE</strong></p>
         <label class="switch" id="extensionSwitch">
           <input id="toggleExtension" type="checkbox" />
           <span class="slider round"></span>
         </label>
       </div>
-      <div>
-        <p><strong>Whitelist</strong></p>
-        <p><strong>OFF/ON</strong></p>
+      <div class="container">
+        <p class="buttonLabel"><strong>WHITELIST</strong></p>
         <label class="switch" id="whitelistSwitch">
           <input id="toggleWhitelist" type="checkbox" />
           <span class="slider round"></span>
         </label>
       </div>
     </div>
-    <br />
-    <script src="popup.js" type="module"></script>
+  </div>
+  <br />
+  <script src="popup.js" type="module"></script>
   </body>
 </html>

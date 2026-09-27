@@ -1,26 +1,41 @@
-<html lang="en">
+<!doctype html>
+<html lang="it">
   <head>
+    <meta charset="UTF-8" />
     <link href="popup.css" rel="stylesheet" />
   </head>
   <body>
-    <div id="main">
-      <div class="container">
-        <p class="buttonLabel"><strong>SURFREE</strong></p>
+    <div class="popup-card">
+      <!-- Header / Main Switch -->
+      <header class="header" id="main">
+        <div class="brand">
+          <img src="../images/surfree128.png" alt="Logo" class="logo" />
+          <h1 class="title">SURFREE</h1>
+        </div>
         <label class="switch" id="extensionSwitch">
           <input id="toggleExtension" type="checkbox" />
           <span class="slider round"></span>
         </label>
-      </div>
-      <div class="container">
-        <p class="buttonLabel"><strong>WHITELIST</strong></p>
+      </header>
+
+      <!-- Whitelist Card -->
+      <section class="whitelist-card">
+        <div class="whitelist-info">
+          <span class="whitelist-title">Whitelist sito corrente</span>
+          <span class="whitelist-subtitle" id="domainSubtitle"
+            >Pagina speciale</span
+          >
+        </div>
         <label class="switch" id="whitelistSwitch">
           <input id="toggleWhitelist" type="checkbox" />
           <span class="slider round"></span>
         </label>
-      </div>
+      </section>
+
+      <!-- Stats Grid (Popolata dinamicamente da JS) -->
+      <div id="statsContainer"></div>
     </div>
-  </div>
-  <br />
-  <script src="popup.js" type="module"></script>
+
+    <script src="popup.js" type="module"></script>
   </body>
 </html>

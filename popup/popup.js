@@ -15,24 +15,42 @@ async function loadPopupData() {
   const url = new URL(tab.url).hostname;
   const domain = cleanDomain(url);
 
+  // Aggiorna il sottotitolo della whitelist con il dominio o tipo di pagina
+  const subtitleEl = document.getElementById("domainSubtitle");
+  if (subtitleEl) {
+    subtitleEl.textContent = domain || "Pagina speciale";
+  }
+
   const domainBlockedCount = getDomainBlockedCount(stats, domain);
 
   const total = stats.totalBlocked || 0;
   const today = stats.blockedToday || 0;
 
-  let text = document.createElement("div");
+  // Struttura a griglia uguale al layout dell'immagine
+  let statsContainer = document.getElementById("statsContainer");
+  if (!statsContainer) {
+    statsContainer = document.createElement("div");
+    statsContainer.id = "statsContainer";
+    const mainHeader = document.getElementById("main");
+    mainHeader.parentElement.appendChild(statsContainer);
+  }
 
-  text.innerHTML = `
-  <br>
-  <p class="statsLabel"><strong>BLOCCATI IN TOTALE</strong></p>
-  <strong><p class="statsData">${total}</p></strong>
-  <p class="statsLabel"><strong>BLOCCATI  OGGI</strong></p>
-  <strong><p class="statsData">${today}</p></strong>
-  <p class="statsLabel"><strong>BLOCCATI IN QUESTO DOMINO</strong></p>
-  <strong><p class="statsData">${domainBlockedCount}</p></strong>`;
-
-  const header = document.getElementById("main");
-  header.insertAdjacentElement("afterend", text);
+  statsContainer.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">${domainBlockedCount}</div>
+        <div class="stat-label">In questo dominio</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${today}</div>
+        <div class="stat-label">Bloccati oggi</div>
+      </div>
+      <div class="stat-card full-width">
+        <div class="stat-number">${total}</div>
+        <div class="stat-label">Bloccati in totale</div>
+      </div>
+    </div>
+  `;
 
   await handleExtensionButton(domain);
   await handleWhitelistButton(domain);
